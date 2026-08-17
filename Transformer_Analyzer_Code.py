@@ -89,12 +89,12 @@ class TransformerAnalyzer:
         row2_frame = ttk.Frame(analysis_frame)
         row2_frame.pack(fill=tk.X, pady=2)
         
-        ttk.Button(row2_frame, text="📊 VUF/CUF Charts",
-                   command=self.unbalance_charts).pack(side=tk.LEFT, padx=5)
+        ttk.Button(row2_frame, text="📊 VUF Graph",
+                   command=self.vuf_graph).pack(side=tk.LEFT, padx=5)
+        ttk.Button(row2_frame, text="📊 CUF Graph",
+                   command=self.cuf_graph).pack(side=tk.LEFT, padx=5)
         ttk.Button(row2_frame, text="📈 Unbalance Trends",
                    command=self.unbalance_trends).pack(side=tk.LEFT, padx=5)
-        ttk.Button(row2_frame, text="📋 Generate Full PDF Report",
-                   command=self.generate_full_report).pack(side=tk.LEFT, padx=5)
 
         # Row 3: Hourly-averaged distribution analyses
         row3_frame = ttk.Frame(analysis_frame)
@@ -438,8 +438,6 @@ class TransformerAnalyzer:
 
         ax.axhline(self.capacity_kW, color="orange", linestyle="--", linewidth=2,
                    label=f"Transformer Capacity ({self.capacity_kW:.0f} kW)")
-
-        ax.set_title("Peak vs Off-Peak Load Analysis (Hourly)", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hour of Day", fontsize=12)
         ax.set_ylabel("Average Load (kW)", fontsize=12)
         ax.set_xticks(np.arange(0, 24, 1))
@@ -514,10 +512,8 @@ class TransformerAnalyzer:
 
         ax.axhline(vmax, color="black", linestyle="--", linewidth=2, label=f"Upper Limit ({vmax:.1f} V)")
         ax.axhline(vmin, color="black", linestyle="--", linewidth=2, label=f"Lower Limit ({vmin:.1f} V)")
-
-        ax.set_title("Average Hourly Voltage Profile by Season and Phase", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hour of Day", fontsize=12)
-        ax.set_ylabel("Average Voltage (V)", fontsize=12)
+        ax.set_ylabel("Voltage (V)", fontsize=12)
         ax.set_xticks(np.arange(0, 24, 1))
         ax.set_xlim(-0.5, 23.5)
         ax.legend(title="Legend", bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -544,8 +540,6 @@ class TransformerAnalyzer:
 
                 monthly = df.groupby(df['DateTime'].dt.month)['Energy_kWh'].sum()
                 ax.plot(monthly.index, monthly.values, marker='o', linewidth=2, markersize=6, label=name)
-
-        ax.set_title("Monthly Energy Consumption (kWh)", fontsize=14, fontweight='bold')
         ax.set_xlabel("Month", fontsize=12)
         ax.set_ylabel("Energy (kWh)", fontsize=12)
         ax.legend(fontsize=10)
@@ -582,8 +576,6 @@ class TransformerAnalyzer:
 
                     ax.plot(hours, hourly_loads, linestyle=styles[name], color=colors[d_type],
                             linewidth=2, label=f"{name} - {d_type}")
-
-        ax.set_title("Average Daily Load Profiles (Hourly)", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hour of Day", fontsize=12)
         ax.set_ylabel("Load (kW)", fontsize=12)
         ax.set_xticks(np.arange(0, 24, 1))
@@ -618,10 +610,8 @@ class TransformerAnalyzer:
 
         ax.axhline(self.capacity_kW, color="red", linestyle="--", linewidth=2,
                    label=f"Transformer Capacity ({self.capacity_kW:.0f} kW)")
-        
-        ax.set_title("Average Active Power Curve", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hour of Day", fontsize=12)
-        ax.set_ylabel("Average Active Power (kW)", fontsize=12)
+        ax.set_ylabel("Active Power (kW)", fontsize=12)
         ax.set_xticks(np.arange(0, 24, 1))
         ax.set_xlim(-0.5, 23.5)
         ax.legend()
@@ -695,7 +685,6 @@ class TransformerAnalyzer:
 
         ax.axvline(self.capacity_kW, color="red", linestyle="--", linewidth=2,
                    label=f"Transformer Capacity ({self.capacity_kW:.0f} kW)")
-        ax.set_title("Distribution of Hourly-Averaged Active Power", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hourly-Averaged Active Power (kW)", fontsize=12)
         ax.set_ylabel("Frequency", fontsize=12)
         ax.legend()
@@ -733,7 +722,6 @@ class TransformerAnalyzer:
 
         ax.axvline(self.vuf_threshold, color="red", linestyle="--", linewidth=2,
                    label=f"VUF Limit ({self.vuf_threshold}%)")
-        ax.set_title("Distribution of Hourly-Averaged VUF", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hourly-Averaged VUF (%)", fontsize=12)
         ax.set_ylabel("Frequency", fontsize=12)
         ax.legend()
@@ -771,7 +759,6 @@ class TransformerAnalyzer:
 
         ax.axvline(self.cuf_threshold, color="red", linestyle="--", linewidth=2,
                    label=f"CUF Limit ({self.cuf_threshold}%)")
-        ax.set_title("Distribution of Hourly-Averaged CUF", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hourly-Averaged CUF (%)", fontsize=12)
         ax.set_ylabel("Frequency", fontsize=12)
         ax.legend()
@@ -808,10 +795,8 @@ class TransformerAnalyzer:
             messagebox.showwarning("No Data", "No load data available to calculate reactive power.")
             plt.close(fig)
             return
-
-        ax.set_title("Average Reactive Power Curve", fontsize=14, fontweight='bold')
         ax.set_xlabel("Hour of Day", fontsize=12)
-        ax.set_ylabel(f"Average Reactive Power (kVAR) @ PF={self.PF}", fontsize=12)
+        ax.set_ylabel(f"Reactive Power (kVAR) @ PF={self.PF}", fontsize=12)
         ax.set_xticks(np.arange(0, 24, 1))
         ax.set_xlim(-0.5, 23.5)
         ax.legend()
@@ -819,6 +804,86 @@ class TransformerAnalyzer:
         plt.tight_layout()
 
         self.save_figure_as_jpg(fig, "Reactive_Power_Curve.jpg")
+        self.display_chart(fig)
+        plt.close(fig)
+
+    def vuf_graph(self):
+        """Generate a separate hourly-averaged VUF graph for all available seasons."""
+        seasons = {'Summer': 'summer', 'Winter': 'winter', 'Festival': 'festival'}
+        fig, ax = plt.subplots(figsize=(12, 8))
+        colors = {'Summer': 'red', 'Winter': 'blue', 'Festival': 'green'}
+        has_data = False
+
+        for name, season_key in seasons.items():
+            df = self.get_merged_unbalance_data(season_key)
+            if df is not None and not df.empty and 'VUF' in df.columns:
+                hourly_vuf = df.groupby('Hour')['VUF'].mean()
+                hours = np.arange(0, 24, 1)
+                vuf_values = [hourly_vuf.get(h, np.nan) for h in hours]
+                ax.plot(hours, vuf_values, marker='o', linewidth=2,
+                        markersize=4, color=colors[name], label=name)
+                has_data = True
+
+        if not has_data:
+            messagebox.showwarning(
+                "No Data",
+                "No complete Transformer A, B, C data available to generate the VUF graph."
+            )
+            plt.close(fig)
+            return
+
+        ax.axhline(y=self.vuf_threshold, color="red", linestyle="--",
+                   alpha=0.7, linewidth=2,
+                   label=f"VUF Reference ({self.vuf_threshold}%)")
+        ax.set_xlabel("Hour of Day", fontsize=12)
+        ax.set_ylabel("VUF (%)", fontsize=12)
+        ax.set_xticks(np.arange(0, 24, 1))
+        ax.set_xlim(-0.5, 23.5)
+        ax.legend()
+        ax.grid(True, linestyle="--", alpha=0.7)
+        plt.tight_layout()
+
+        self.save_figure_as_jpg(fig, "VUF_Graph.jpg")
+        self.display_chart(fig)
+        plt.close(fig)
+
+    def cuf_graph(self):
+        """Generate a separate hourly-averaged CUF graph for all available seasons."""
+        seasons = {'Summer': 'summer', 'Winter': 'winter', 'Festival': 'festival'}
+        fig, ax = plt.subplots(figsize=(12, 8))
+        colors = {'Summer': 'red', 'Winter': 'blue', 'Festival': 'green'}
+        has_data = False
+
+        for name, season_key in seasons.items():
+            df = self.get_merged_unbalance_data(season_key)
+            if df is not None and not df.empty and 'CUF' in df.columns:
+                hourly_cuf = df.groupby('Hour')['CUF'].mean()
+                hours = np.arange(0, 24, 1)
+                cuf_values = [hourly_cuf.get(h, np.nan) for h in hours]
+                ax.plot(hours, cuf_values, marker='o', linewidth=2,
+                        markersize=4, color=colors[name], label=name)
+                has_data = True
+
+        if not has_data:
+            messagebox.showwarning(
+                "No Data",
+                "No complete Transformer A, B, C data available to generate the CUF graph."
+            )
+            plt.close(fig)
+            return
+
+        ax.axhline(y=self.cuf_threshold, color="red", linestyle="--",
+                   alpha=0.7, linewidth=2,
+                   label=f"CUF Assessment Threshold ({self.cuf_threshold}%)")
+        ax.set_xlabel("Hour of Day", fontsize=12)
+        ax.set_ylabel("CUF (%)", fontsize=12)
+        ax.set_xticks(np.arange(0, 24, 1))
+        ax.set_xlim(-0.5, 23.5)
+        ax.legend()
+        ax.grid(True, linestyle="--", alpha=0.7)
+        plt.tight_layout()
+
+        self.save_figure_as_jpg(fig, "CUF_Graph.jpg")
         self.display_chart(fig)
         plt.close(fig)
 
@@ -869,8 +934,6 @@ class TransformerAnalyzer:
         ax1.axhline(y=self.cuf_threshold, color='red', linestyle='--', alpha=0.7, linewidth=2, label=f'CUF Limit ({self.cuf_threshold}%)')
         ax1.set_xlabel('Voltage Unbalance Factor (%)', fontweight='bold')
         ax1.set_ylabel('Current Unbalance Factor (%)', fontweight='bold')
-        ax1.set_title('VUF vs CUF Correlation', fontweight='bold')
-        
         # Set CUF y-axis scale to 5% intervals
         cuf_max = max([df['CUF'].max() for season in seasons_with_data 
                       for df in [self.get_merged_unbalance_data(season)] if df is not None])
@@ -881,16 +944,14 @@ class TransformerAnalyzer:
 
         ax2.axhline(y=self.vuf_threshold, color='red', linestyle='--', alpha=0.7, label=f'VUF Limit ({self.vuf_threshold}%)')
         ax2.set_xlabel('Hour of Day')
-        ax2.set_ylabel('Average VUF (%)')
-        ax2.set_title('Hourly Voltage Unbalance Factor')
+        ax2.set_ylabel('VUF (%)')
         ax2.set_xticks(np.arange(0, 24, 2))
         ax2.legend()
         ax2.grid(True, alpha=0.3)
 
         ax3.axhline(y=self.cuf_threshold, color='red', linestyle='--', alpha=0.7, label=f'CUF Limit ({self.cuf_threshold}%)')
         ax3.set_xlabel('Hour of Day')
-        ax3.set_ylabel('Average CUF (%)')
-        ax3.set_title('Hourly Current Unbalance Factor')
+        ax3.set_ylabel('CUF (%)')
         ax3.set_xticks(np.arange(0, 24, 2))
         ax3.legend()
         ax3.grid(True, alpha=0.3)
@@ -922,7 +983,6 @@ class TransformerAnalyzer:
             ax4.set_xticks(x_pos)
             ax4.set_xticklabels(labels_list, fontweight='bold')
             ax4.set_ylabel('Unbalance Factor (%)', fontweight='bold')
-            ax4.set_title('VUF and CUF Distribution by Season\n(Mean ± Std Dev)', fontweight='bold')
             ax4.legend(loc='upper left', framealpha=0.9)
             ax4.grid(True, alpha=0.3, axis='y')
             
@@ -971,16 +1031,14 @@ class TransformerAnalyzer:
 
         ax1.axhline(y=self.vuf_threshold, color='red', linestyle='--', alpha=0.8,
                     label=f'VUF Limit ({self.vuf_threshold}%)')
-        ax1.set_ylabel('Voltage Unbalance Factor (%)')
-        ax1.set_title('VUF Time Series Trend')
+        ax1.set_ylabel('VUF (%)')
         ax1.legend()
         ax1.grid(True, alpha=0.3)
 
         ax2.axhline(y=self.cuf_threshold, color='red', linestyle='--', alpha=0.8,
                     label=f'CUF Limit ({self.cuf_threshold}%)')
         ax2.set_xlabel('Time')
-        ax2.set_ylabel('Current Unbalance Factor (%)')
-        ax2.set_title('CUF Time Series Trend')
+        ax2.set_ylabel('CUF (%)')
         ax2.legend()
         ax2.grid(True, alpha=0.3)
 
@@ -1022,7 +1080,6 @@ class TransformerAnalyzer:
                     ])
                 plt.text(0.05, 0.95, "\n".join(unbalance_text), va="top", fontsize=11,
                          transform=ax.transAxes, family='monospace')
-                plt.title("Unbalance Analysis Report", fontsize=16, fontweight='bold', pad=20)
                 pdf.savefig(fig)
                 plt.close(fig)
 
@@ -1038,7 +1095,6 @@ class TransformerAnalyzer:
                 ax1.axhline(y=self.cuf_threshold, color='red', linestyle='--', alpha=0.7)
                 ax1.set_xlabel('VUF (%)')
                 ax1.set_ylabel('CUF (%)')
-                ax1.set_title('VUF vs CUF')
                 ax1.legend()
                 ax1.grid(True, alpha=0.3)
 
@@ -1050,7 +1106,6 @@ class TransformerAnalyzer:
                 ax2.axhline(y=self.vuf_threshold, color='red', linestyle='--', alpha=0.7)
                 ax2.set_xlabel('Hour')
                 ax2.set_ylabel('VUF (%)')
-                ax2.set_title('Hourly VUF')
                 ax2.legend()
                 ax2.grid(True, alpha=0.3)
 
@@ -1062,7 +1117,6 @@ class TransformerAnalyzer:
                 ax3.axhline(y=self.cuf_threshold, color='red', linestyle='--', alpha=0.7)
                 ax3.set_xlabel('Hour')
                 ax3.set_ylabel('CUF (%)')
-                ax3.set_title('Hourly CUF')
                 ax3.legend()
                 ax3.grid(True, alpha=0.3)
 
@@ -1080,7 +1134,6 @@ class TransformerAnalyzer:
                 ax4.set_xticks(x_pos)
                 ax4.set_xticklabels(labels)
                 ax4.set_ylabel('Unbalance (%)')
-                ax4.set_title('VUF & CUF Distribution')
                 ax4.grid(True, alpha=0.3)
                 plt.tight_layout()
                 pdf.savefig(fig)
@@ -1107,7 +1160,6 @@ class TransformerAnalyzer:
                     ax.table(cellText=table_data,
                              colLabels=["Subset", "Peak Load", "Overload Days"],
                              loc="center").scale(1.2, 1.2)
-                    ax.set_title(f"{name} - {d_type} Summary", fontsize=12, pad=20)
                     pdf.savefig(fig)
                     plt.close(fig)
 
@@ -1120,7 +1172,6 @@ class TransformerAnalyzer:
                         fig, ax = plt.subplots(figsize=(10, 6))
                         ax.plot(crit_df['Hour'], crit_df['Load_kW'], marker='o', color='purple', label='Load')
                         ax.axhline(self.capacity_kW, color='red', linestyle='--', label=f'Capacity ({self.capacity_kW} kW)')
-                        ax.set_title(f"Critical Day Load Curve ({name} - {d_type} | Date: {crit_day})")
                         ax.set_xlabel("Hour of Day")
                         ax.set_ylabel("Load (kW)")
                         ax.set_xticks(np.arange(0, 24, 1))
