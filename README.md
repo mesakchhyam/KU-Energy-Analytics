@@ -1,4 +1,4 @@
-# KU-EnergyAnalytics
+# KU-Energy-Analytics
 
 Python-based calculation and graph-generation tool developed for energy consumption and power-quality analysis of the main transformer at Kathmandu University, Nepal.
 
@@ -8,7 +8,7 @@ This software was developed to process downloaded smart-meter data and generate 
 
 The software does **not** automatically acquire data from the IAMMETER cloud platform. Historical smart-meter data are downloaded from the IAMMETER cloud platform and subsequently loaded into the Python graphical user interface (GUI) for analysis.
 
-The tool is intended for calculation, analysis, visualization, and report generation rather than automatic data acquisition.
+The tool is intended for calculation, analysis, and graph generation rather than automatic data acquisition.
 
 ## Study Scope
 
@@ -28,13 +28,16 @@ The software provides the following analysis functions:
 - Daily load profiles
 - Active power curves
 - Reactive power curves
-- VUF/CUF charts
+- Separate VUF graph
+- Separate CUF graph
+- Combined unbalance charts
 - VUF trends
 - CUF trends
 - Hourly-averaged active power distribution
 - Hourly-averaged VUF distribution
 - Hourly-averaged CUF distribution
-- Full PDF report generation
+
+The VUF and CUF graphs are available as separate analysis options so that voltage and current unbalance can be examined independently.
 
 ## Data Processing
 
@@ -48,9 +51,23 @@ The analysis workflow is:
 2. The downloaded data are loaded into the Python GUI.
 3. Transformer A, B, and C datasets are processed for each study period.
 4. Electrical parameters and hourly-based analyses are calculated.
-5. Individual graphs and a complete PDF analysis report can be generated.
+5. Individual graphs are generated from the processed data.
 
 The original Kathmandu University measurement data are not included in this repository.
+
+## Unbalance Calculation
+
+The VUF and CUF calculations used in this study are based on the maximum phase deviation from the corresponding three-phase average magnitude.
+
+For voltage:
+
+VUF = max(|Vi - Vavg|) / Vavg × 100
+
+For current:
+
+CUF = max(|Ii - Iavg|) / Iavg × 100
+
+These are the deviation-based unbalance metrics used in the associated research paper and are not sequence-component unbalance factors.
 
 ## Data Availability
 
@@ -75,6 +92,8 @@ Clone or download this repository and install the required Python packages using
 pip install -r requirements.txt
 ```
 
+`tkinter` is normally included with standard Python installations. On some Linux distributions, it may need to be installed separately through the operating system package manager.
+
 ## Usage
 
 Run the Python program using:
@@ -88,13 +107,16 @@ After starting the GUI:
 1. Load the Transformer A, B, and C datasets for the required season.
 2. Confirm that the required phase datasets have been loaded.
 3. Select the required analysis option from the **Analysis Options** section.
-4. Generate individual graphs or use **Generate Full PDF Report** for the complete analysis report.
+4. Generate the required individual graph or distribution plot.
+
+The analysis section includes separate options for **VUF Graph** and **CUF Graph**.
 
 ## Repository Contents
 
 - `Transformer_Analyzer_Code.py` - Main Python GUI and analysis program
 - `requirements.txt` - Required Python packages
 - `README.md` - Project documentation
+- `LICENSE` - MIT License
 
 ## Reproducibility
 
